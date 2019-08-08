@@ -23,3 +23,13 @@ CMD: ```./myapp <mac address> <ip address> <tcp port number>```
 	tcp port check, if intentend packet send this packet to kernel (dpdk-tap-eth1)
 	Use linux routing to foward traffic between tap interfaces
 ```
+
+## Overview
+
+### IP address
+- dpdk-tap-eth1: 10.10.10.10
+- knl-tap-eth1: 10.10.10.11
+
+### Packet Flow
+- DPDK RX NIC ==> dpdk-tap-eth1 ==> kernel stack ==> knl-tap-eth1 ==> python socket application
+- python socket application ==> knl-tap-eth1 ==> kernel stack ==> dpdk-tap-eth1 ==> DPDK TX NIC
