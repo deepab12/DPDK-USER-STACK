@@ -29,6 +29,8 @@ stack_parse_args(int argc, char **argv)
 		switch (opt) {
 		case 'f':
 			printf(" file (%s) index (%d)\n", optarg, option_index);
+			if (ParseStackConfig(optarg) != NULL)
+				return -1;
 			break;
 
 		case 0:

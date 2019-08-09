@@ -1,8 +1,8 @@
 #include "helper.h"
 
-void *ParseStackConfig(void)
+void *ParseStackConfig(char *CfgFile)
 {
-	struct rte_cfgfile *file = rte_cfgfile_load(STACK-CFG, 0);
+	struct rte_cfgfile *file = rte_cfgfile_load(CfgFile, 0);
 
 	/* get section name EAL */
 	if (rte_cfgfile_has_section(file, "EAL")) {
@@ -13,14 +13,18 @@ void *ParseStackConfig(void)
 		struct rte_cfgfile_entry entries[n_entries];
 
 		if (rte_cfgfile_section_entries(file, "EAL", entries, n_entries) != -1) {
+#if 0
 			argument_count += n_entries * 2;
 			printf(" argument_count %d", argument_count);
+#endif
 
 			for (int i = 0; i < n_entries; i++) {
 				printf(" - entries[i].name: (%s) entries[i].value: (%s)", entries[i].name, entries[i].value);
+#if 0
 				snprintf(argument[i * 2 + 1], 32, "%s", entries[i].name);
 				snprintf(argument[i * 2 + 2], 32, "%s", entries[i].value);
 				printf(" - argument: (%s) (%s)", argument[i * 2 + 1], argument[i * 2 + 2]);
+#endif
 			}
 		}
 	}
@@ -42,6 +46,7 @@ void *ParseStackConfig(void)
 				for (int j = 0; j < n_port_entries; j++) {
 					printf(" %s name: (%s) value: (%s)", port_section_name, entries[j].name, entries[j].value);
 
+#if 0
 					if (strcasecmp("rx-queues", entries[j].name) == 0)
 						dpdk_ports[i].rxq_count = atoi(entries[j].value);
 					else if (strcasecmp("tx-queues", entries[j].name) == 0)
@@ -54,6 +59,7 @@ void *ParseStackConfig(void)
 						dpdk_ports[i].jumbo = (strcasecmp(entries[j].value, "yes") == 0) ? 1 : 0;
 					else if (strcasecmp("core", entries[j].name) == 0)
 						dpdk_ports[i].lcore_index = atoi(entries[j].value);
+#endif
 				}
 			}
 		}
@@ -71,6 +77,7 @@ void *ParseStackConfig(void)
 			for (int j = 0; j < n_entries; j++) {
 				printf(" - entries[i] name: (%s) value: (%s)", entries[j].name, entries[j].value);
 
+#if 0
 				if (strcasecmp("name", entries[j].name) == 0)
 					rte_memcpy(dpdk_mempool_config.name, entries[j].value, sizeof(entries[j].value));
 				if (strcasecmp("n", entries[j].name) == 0)
@@ -81,6 +88,7 @@ void *ParseStackConfig(void)
 					dpdk_mempool_config.private_data_size = atoi(entries[j].value);
 				if (strcasecmp("socket_id", entries[j].name) == 0)
 					dpdk_mempool_config.private_data_size = atoi(entries[j].value);
+#endif
 			}
 		}
 	}

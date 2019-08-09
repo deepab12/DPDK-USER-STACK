@@ -40,5 +40,5 @@
 #include <rte_tailq.h>
 #include <rte_cfgfile.h>
 
-void *ParseStackConfig(void);
+void *ParseStackConfig(char *CfgFile);
 #endif /*__HELPER__*/
