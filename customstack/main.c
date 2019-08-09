@@ -9,11 +9,47 @@ lcore_hello(__attribute__((unused)) void *arg)
 	return 0;
 }
 
+/* Parse the argument given in the command line of the application */
+static int
+stack_parse_args(int argc, char **argv)
+{
+	char *prgname = argv[0];
+	char **argvopt;
+	int option_index, opt;
+	static const char short_options[] =
+        "f:"  /* cfg file */
+        "T:"  /* timer period */
+        ;
+
+	argvopt = argv;
+
+	printf(" prgname (%s)\n", prgname);
+
+	while ((opt = getopt_long(argc, argvopt, short_options, NULL, &option_index)) != EOF) {
+		switch (opt) {
+		case 'f':
+			printf(" file (%s) index (%d)\n", optarg, option_index);
+			break;
+
+		case 0:
+			break;
+
+		default:
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
 int
 main(int argc, char **argv)
 {
 	int ret;
 	unsigned lcore_id;
+
+	stack_parse_args(argc, argv);
+	return 0;
 
 	ret = rte_eal_init(argc, argv);
 	if (ret < 0)

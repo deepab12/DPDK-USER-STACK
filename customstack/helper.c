@@ -1,8 +1,8 @@
-
+#include "helper.h"
 
 void *ParseStackConfig(void)
 {
-	file = rte_cfgfile_load(STACK-CFG, 0);
+	struct rte_cfgfile *file = rte_cfgfile_load(STACK-CFG, 0);
 
 	/* get section name EAL */
 	if (rte_cfgfile_has_section(file, "EAL")) {
