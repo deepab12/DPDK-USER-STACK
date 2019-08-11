@@ -1,5 +1,8 @@
 #include "helper.h"
 
+extern uint16_t argument_count;
+extern char argument[DPDK_MAXARGS][32];
+char *args[DPDK_MAXARGS];
 static int
 lcore_hello(__attribute__((unused)) void *arg)
 {
@@ -23,13 +26,13 @@ stack_parse_args(int argc, char **argv)
 
 	argvopt = argv;
 
-	printf(" prgname (%s)\n", prgname);
+	RTE_LOG(INFO, STACK, " prgname (%s)\n", prgname);
 
 	while ((opt = getopt_long(argc, argvopt, short_options, NULL, &option_index)) != EOF) {
 		switch (opt) {
 		case 'f':
-			printf(" file (%s) index (%d)\n", optarg, option_index);
-			if (ParseStackConfig(optarg) != NULL)
+			RTE_LOG(INFO, STACK, " file (%s) index (%d)\n", optarg, option_index);
+			if (ParseStackConfig(optarg) == NULL)
 				return -1;
 			break;
 
@@ -50,10 +53,19 @@ main(int argc, char **argv)
 	int ret;
 	unsigned lcore_id;
 
-	stack_parse_args(argc, argv);
-	return 0;
+	if (stack_parse_args(argc, argv) != 0) {
+		RTE_LOG(ERR, STACK, " fail to read config\n");
+		return -1;
+	}
 
-	ret = rte_eal_init(argc, argv);
+	RTE_LOG(INFO, STACK, " EAL arg count (%u) \n", argument_count);
+	for (int i = 0; i < argument_count; i++)
+		RTE_LOG(INFO, STACK, " args (%s) \n", argument[i]);
+
+	for (int j = 0; j < argument_count; j++)
+		args[j] = argument[j];
+
+	ret = rte_eal_init(argument_count, args);
 	if (ret < 0)
 		rte_panic("Cannot init EAL\n");
 

@@ -1,32 +1,43 @@
 #include "helper.h"
 
+uint16_t argument_count = 1;
+char argument[DPDK_MAXARGS][32] = {{"./mystack"}, {""}};
+
 void *ParseStackConfig(char *CfgFile)
 {
 	struct rte_cfgfile *file = rte_cfgfile_load(CfgFile, 0);
+	if (file == NULL) {
+		RTE_LOG(ERR, STACK, " failed to get file (%s)", CfgFile);
+		return file;
+	}
 
 	/* get section name EAL */
 	if (rte_cfgfile_has_section(file, "EAL")) {
-		printf(" section (EAL); count %d", rte_cfgfile_num_sections(file, "EAL", sizeof("EAL") - 1));
-		printf(" section (EAL) has entries %d", rte_cfgfile_section_num_entries(file, "EAL"));
+		RTE_LOG(DEBUG, STACK, " section (EAL); count %d\n", rte_cfgfile_num_sections(file, "EAL", sizeof("EAL") - 1));
+		RTE_LOG(DEBUG, STACK, " section (EAL) has entries %d\n", rte_cfgfile_section_num_entries(file, "EAL"));
 
 		int n_entries = rte_cfgfile_section_num_entries(file, "EAL");
 		struct rte_cfgfile_entry entries[n_entries];
 
 		if (rte_cfgfile_section_entries(file, "EAL", entries, n_entries) != -1) {
-#if 0
-			argument_count += n_entries * 2;
-			printf(" argument_count %d", argument_count);
-#endif
-
 			for (int i = 0; i < n_entries; i++) {
-				printf(" - entries[i].name: (%s) entries[i].value: (%s)", entries[i].name, entries[i].value);
-#if 0
-				snprintf(argument[i * 2 + 1], 32, "%s", entries[i].name);
-				snprintf(argument[i * 2 + 2], 32, "%s", entries[i].value);
-				printf(" - argument: (%s) (%s)", argument[i * 2 + 1], argument[i * 2 + 2]);
-#endif
+
+				if (strlen(entries[i].name)) {
+					RTE_LOG(DEBUG, STACK, " - entries[i].name: (%s)\n", entries[i].name);
+					memcpy(argument[i * 2 + 1], entries[i].name, strlen(entries[i].name));
+					argument_count += 1;
+				}
+
+				if (strlen(entries[i].value)) {
+					RTE_LOG(DEBUG, STACK, " - entries[i].value: (%s)\n", entries[i].value);
+					memcpy(argument[i * 2 + 2], entries[i].value, strlen(entries[i].value));
+					argument_count += 1;
+				}
 			}
 		}
+
+		for (int i = 0; i < argument_count; i++)
+			RTE_LOG(INFO, STACK, " - argument: (%s)\n", argument[i]);
 	}
 
 	/* get section name PORT-X */
@@ -37,14 +48,14 @@ void *ParseStackConfig(char *CfgFile)
 		if (rte_cfgfile_has_section(file, port_section_name)) {
 			int n_port_entries = rte_cfgfile_section_num_entries(file, port_section_name);
 
-			printf(" %s", port_section_name);
-			printf(" section (PORT) has %d entries", n_port_entries);
+			RTE_LOG(INFO, STACK, " %s", port_section_name);
+			RTE_LOG(INFO, STACK, " section (PORT) has %d entries\n", n_port_entries);
 
 			struct rte_cfgfile_entry entries[n_port_entries];
 			if (rte_cfgfile_section_entries(file, port_section_name, entries, n_port_entries) != -1) {
 
 				for (int j = 0; j < n_port_entries; j++) {
-					printf(" %s name: (%s) value: (%s)", port_section_name, entries[j].name, entries[j].value);
+					RTE_LOG(INFO, STACK, " %s name: (%s) value: (%s)\n", port_section_name, entries[j].name, entries[j].value);
 
 #if 0
 					if (strcasecmp("rx-queues", entries[j].name) == 0)
@@ -67,15 +78,15 @@ void *ParseStackConfig(char *CfgFile)
 
 	/* get section name MEMPOOL-PORT */
 	if (rte_cfgfile_has_section(file, "MEMPOOL-PORT")) {
-		printf(" section (MEMPOOL-PORT); count %d", rte_cfgfile_num_sections(file, "MEMPOOL-PORT", sizeof("MEMPOOL-PORT") - 1));
-		printf(" section (MEMPOOL-PORT) has entries %d", rte_cfgfile_section_num_entries(file, "MEMPOOL-PORT"));
+		RTE_LOG(INFO, STACK, " section (MEMPOOL-PORT); count %d\n", rte_cfgfile_num_sections(file, "MEMPOOL-PORT", sizeof("MEMPOOL-PORT") - 1));
+		RTE_LOG(INFO, STACK, " section (MEMPOOL-PORT) has entries %d\n", rte_cfgfile_section_num_entries(file, "MEMPOOL-PORT"));
 
 		int n_entries = rte_cfgfile_section_num_entries(file, "MEMPOOL-PORT");
 		struct rte_cfgfile_entry entries[n_entries];
 
 		if (rte_cfgfile_section_entries(file, "MEMPOOL-PORT", entries, n_entries) != -1) {
 			for (int j = 0; j < n_entries; j++) {
-				printf(" - entries[i] name: (%s) value: (%s)", entries[j].name, entries[j].value);
+				RTE_LOG(INFO, STACK, " - entries[i] name: (%s) value: (%s)\n", entries[j].name, entries[j].value);
 
 #if 0
 				if (strcasecmp("name", entries[j].name) == 0)
@@ -94,5 +105,5 @@ void *ParseStackConfig(char *CfgFile)
 	}
 
 	rte_cfgfile_close(file);
-
+	return file;
 }

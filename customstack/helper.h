@@ -39,6 +39,10 @@
 #include <rte_version.h>
 #include <rte_tailq.h>
 #include <rte_cfgfile.h>
+#include <rte_string_fns.h>
+
+#define RTE_LOGTYPE_STACK RTE_LOGTYPE_USER1
+#define DPDK_MAXARGS 10
 
 void *ParseStackConfig(char *CfgFile);
 #endif /*__HELPER__*/
